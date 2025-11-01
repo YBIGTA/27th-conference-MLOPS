@@ -1,0 +1,36 @@
+[Unit]
+Description=Market Data Collector for Binance
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ec2-user
+WorkingDirectory=/home/ec2-user/market-data-ingestion
+Environment="RAW_BUCKET=your-raw-data-bucket"
+Environment="SYMBOL=BTCUSDT"
+Environment="LOCAL_DIR=/tmp/market-data"
+Environment="ROT_BYTES=2097152"
+Environment="ROT_SECS=5"
+Environment="INSTANCE_ID=i-placeholder"
+Environment="AWS_REGION=us-east-1"
+Environment="LOG_LEVEL=INFO"
+
+# Start the collector
+ExecStart=/usr/bin/python3 -m src.collector.collector_simple
+
+# Restart policy
+Restart=always
+RestartSec=5
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=market-collector
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

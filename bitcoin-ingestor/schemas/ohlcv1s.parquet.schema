@@ -1,0 +1,24 @@
+# Apache Parquet Schema for 1-second OHLCV data
+# This schema is for future extension (post-MVP)
+# To be used with Kinesis + Lambda aggregation pipeline
+
+message ohlcv1s {
+  required int64 timestamp_ms;        # Window start time (milliseconds)
+  required binary symbol (UTF8);       # Trading symbol (e.g., BTCUSDT)
+  required double open;                # Opening price
+  required double high;                # Highest price
+  required double low;                 # Lowest price
+  required double close;               # Closing price
+  required double volume;              # Total volume
+  required int64 trade_count;          # Number of trades
+  required double buy_volume;          # Buy-side volume
+  required double sell_volume;         # Sell-side volume
+  required double vwap;                # Volume-weighted average price
+}
+
+# Example partitioning:
+# s3://<PROCESSED_BUCKET>/ohlcv1s/
+#   exchange=binance/
+#     symbol=BTCUSDT/
+#       dt=YYYY-MM-DD/HH/
+#         part-<timestamp>.parquet
