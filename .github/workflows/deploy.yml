@@ -1,0 +1,49 @@
+name: Deploy Collector
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_INFRA }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_INFRA }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Package news lambda
+        run: |
+          cd infra/ingestor/lambda/news_ingestor
+          zip -r ../news_ingestor.zip .
+
+      - name: Update news lambda function
+        run: |
+          aws lambda update-function-code \
+            --function-name "${{ secrets.NEWS_LAMBDA_NAME }}" \
+            --zip-file fileb://infra/ingestor/news_ingestor.zip
+
+      - name: Push CodeDeploy bundle to S3
+        run: |
+          aws deploy push \
+            --application-name "${{ secrets.CODEDEPLOY_APP_NAME }}" \
+            --s3-location "s3://${{ secrets.CODEDEPLOY_BUCKET }}/codedeploy/${GITHUB_SHA}.zip" \
+            --ignore-hidden-files \
+            --source .
+
+      - name: Trigger CodeDeploy deployment
+        run: |
+          aws deploy create-deployment \
+            --application-name "${{ secrets.CODEDEPLOY_APP_NAME }}" \
+            --deployment-group-name "${{ secrets.CODEDEPLOY_DEPLOYMENT_GROUP }}" \
+            --s3-location bucket=${{ secrets.CODEDEPLOY_BUCKET }},key=codedeploy/${GITHUB_SHA}.zip,bundleType=zip

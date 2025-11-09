@@ -1,0 +1,22 @@
+version: 0.0
+os: linux
+files:
+  - source: infra/ingestor/app
+    destination: /opt/collector/src
+    file_exists_behavior: OVERWRITE
+  - source: infra/ingestor/codedeploy/collector.service
+    destination: /opt/collector/src
+    file_exists_behavior: OVERWRITE
+hooks:
+  BeforeInstall:
+    - location: infra/ingestor/codedeploy/scripts/stop.sh
+      timeout: 120
+      runas: root
+  AfterInstall:
+    - location: infra/ingestor/codedeploy/scripts/install.sh
+      timeout: 300
+      runas: root
+  ApplicationStart:
+    - location: infra/ingestor/codedeploy/scripts/start.sh
+      timeout: 120
+      runas: root

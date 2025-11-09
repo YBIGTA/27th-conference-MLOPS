@@ -1,0 +1,18 @@
+[Unit]
+Description=Bitcoin Binance Collector
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ec2-user
+WorkingDirectory=/opt/collector/src
+EnvironmentFile=/opt/collector/.env
+ExecStart=/opt/collector/venv/bin/python collector.py
+Restart=always
+RestartSec=5
+StandardOutput=append:/var/log/collector.log
+StandardError=append:/var/log/collector.log
+
+[Install]
+WantedBy=multi-user.target

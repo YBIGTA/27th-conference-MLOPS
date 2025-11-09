@@ -1,0 +1,27 @@
+# Core identifiers
+aws_region            = "ap-northeast-2"
+project               = "mlops-ingestor-ybigta"
+landing_bucket_name   = "ybigta-mlops-landing-zone"
+artifact_bucket_name  = "ybigta-mlops-artifacts"
+ssh_key_name          = "ybigta-bitcoin-dev"
+
+# Networking
+vpc_cidr           = "10.42.0.0/16"
+public_subnet_cidr = "10.42.1.0/24"
+
+# Security group ingress
+ingestor_ssh_cidrs = ["58.79.8.251/32"]
+
+# Instance size
+instance_type_ingestor = "t3.micro"
+
+# Lambda + pipeline
+lambda_schedule_expression = "rate(5 minutes)"
+news_data_source           = "TEST"
+env_parameter_name        = "/mlops/collector/env"
+
+# Optional shared tags
+tags = {
+  Environment = "dev"
+  Owner       = "team-mlops"
+}
