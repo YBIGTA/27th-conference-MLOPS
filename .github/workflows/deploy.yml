@@ -25,7 +25,7 @@ jobs:
       - name: Package news lambda
         run: |
           rm -f infra/ingestor/news_ingestor.zip
-          zip -r infra/ingestor/news_ingestor.zip infra/ingestor/lambda/news_ingestor
+          zip -j infra/ingestor/news_ingestor.zip infra/ingestor/lambda/news_ingestor/main.py
 
       - name: Update news lambda function
         run: |
