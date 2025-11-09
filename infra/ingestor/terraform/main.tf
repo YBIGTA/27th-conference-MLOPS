@@ -158,6 +158,14 @@ resource "aws_security_group" "ingestor" {
   }
 
   egress {
+    from_port   = 9443
+    to_port     = 9443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Binance WebSocket"
+  }
+
+  egress {
     from_port   = 53
     to_port     = 53
     protocol    = "tcp"
