@@ -157,6 +157,7 @@ class TradeBatchWriter:
 
 
 def normalize_trade(message: Dict[str, Any]) -> Dict[str, Any]:
+    """Normalize a raw Binance trade payload into our schema."""
     return {
         "event_time": datetime.fromtimestamp(message["E"] / 1000, tz=timezone.utc).isoformat(),
         "trade_time": datetime.fromtimestamp(message["T"] / 1000, tz=timezone.utc).isoformat(),
@@ -164,9 +165,9 @@ def normalize_trade(message: Dict[str, Any]) -> Dict[str, Any]:
         "trade_id": message["t"],
         "price": float(message["p"]),
         "quantity": float(message["q"]),
-        "buyer_order_id": message["b"],
-        "seller_order_id": message["a"],
-        "is_market_maker": message["m"],
+        "buyer_order_id": message.get("b"),
+        "seller_order_id": message.get("a"),
+        "is_market_maker": message.get("m", False),
     }
 
 
@@ -209,6 +210,9 @@ async def collect(config: Config) -> None:
         except RetryError as exc:
             logging.error("Retry budget exhausted: %s", exc)
             raise
+        except Exception:
+            logging.exception("Unexpected error inside stream loop; restarting in 5s")
+            await asyncio.sleep(5)
 
     if buffer.records:
         await flush(buffer, writer, config)

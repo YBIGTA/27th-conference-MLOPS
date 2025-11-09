@@ -22,6 +22,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_INFRA }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Detect changed files
+        id: changes
+        run: |
+          git fetch origin ${{ github.ref }} --depth=2
+          git diff --name-only HEAD^ HEAD > changed_files.txt
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          cat changed_files.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Package news lambda
         run: |
           rm -f infra/ingestor/news_ingestor.zip
@@ -34,6 +43,7 @@ jobs:
             --zip-file fileb://infra/ingestor/news_ingestor.zip
 
       - name: Push CodeDeploy bundle to S3
+        if: contains(steps.changes.outputs.files, 'infra/ingestor/app/') || contains(steps.changes.outputs.files, 'infra/ingestor/codedeploy/')
         run: |
           aws deploy push \
             --application-name "${{ secrets.CODEDEPLOY_APP_NAME }}" \
@@ -42,6 +52,7 @@ jobs:
             --source .
 
       - name: Trigger CodeDeploy deployment
+        if: contains(steps.changes.outputs.files, 'infra/ingestor/app/') || contains(steps.changes.outputs.files, 'infra/ingestor/codedeploy/')
         run: |
           aws deploy create-deployment \
             --application-name "${{ secrets.CODEDEPLOY_APP_NAME }}" \
