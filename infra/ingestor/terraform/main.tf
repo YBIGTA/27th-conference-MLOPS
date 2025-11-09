@@ -327,7 +327,11 @@ locals {
               #!/bin/bash
               set -xeuo pipefail
               dnf update -y
-              dnf install -y python3 python3-pip ruby wget codedeploy-agent
+              dnf install -y python3 python3-pip ruby wget
+              cd /tmp
+              wget https://aws-codedeploy-${var.aws_region}.s3.${var.aws_region}.amazonaws.com/latest/install
+              chmod +x install
+              ./install auto
               systemctl enable --now codedeploy-agent
               mkdir -p /opt/collector
               aws ssm get-parameter --name ${var.env_parameter_name} --with-decryption --region ${var.aws_region} \
