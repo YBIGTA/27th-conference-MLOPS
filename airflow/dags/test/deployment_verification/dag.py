@@ -16,7 +16,6 @@ sys.path.insert(0, str(utils_path))
 
 from dag_utils import get_dag_id, get_default_args
 
-
 def print_deployment_info(**context):
     """배포 환경 정보를 출력합니다."""
     import socket
