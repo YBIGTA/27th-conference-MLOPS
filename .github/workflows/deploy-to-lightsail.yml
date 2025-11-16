@@ -1,0 +1,51 @@
+name: Deploy Airflow DAGs to Lightsail
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'airflow/dags/**'
+      - 'airflow/utils/**'
+      - '.github/workflows/deploy-to-lightsail.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to Lightsail via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.LIGHTSAIL_HOST }}
+          username: ubuntu
+          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+          script: |
+            echo "🚀 Starting deployment..."
+            
+            # Git pull
+            cd ~/airflow/repo
+            git fetch origin
+            git reset --hard origin/main
+            git pull origin main
+            
+            # 권한 설정
+            sudo chown -R 50000:0 ~/airflow/repo/airflow/
+            
+            # Airflow 재시작
+            cd ~/airflow
+            docker-compose restart airflow-scheduler airflow-webserver
+            
+            echo "✅ Deployment completed!"
+            
+      - name: Verify deployment
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.LIGHTSAIL_HOST }}
+          username: ubuntu
+          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+          script: |
+            cd ~/airflow
+            docker-compose ps
