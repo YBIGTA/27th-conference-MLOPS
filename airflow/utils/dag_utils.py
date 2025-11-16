@@ -4,8 +4,6 @@ from typing import List, Dict, Any, Optional
 
 import logging
 
-from airflow.operators.python import get_current_context
-
 logger = logging.getLogger(__name__)
 
 
