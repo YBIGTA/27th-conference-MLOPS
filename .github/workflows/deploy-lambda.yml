@@ -1,0 +1,37 @@
+name: Deploy Lambda
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'infra/ingestor/lambda/**'
+      - '.github/workflows/deploy-lambda.yml'
+
+jobs:
+  deploy-lambda:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_INFRA }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_INFRA }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Package news lambda
+        run: |
+          rm -f infra/ingestor/news_ingestor.zip
+          zip -j infra/ingestor/news_ingestor.zip infra/ingestor/lambda/news_ingestor/main.py
+
+      - name: Update news lambda function
+        run: |
+          aws lambda update-function-code \
+            --function-name "${{ secrets.NEWS_LAMBDA_NAME }}" \
+            --zip-file fileb://infra/ingestor/news_ingestor.zip
