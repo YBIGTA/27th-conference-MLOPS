@@ -66,7 +66,7 @@ infra/
 
 ### Next Steps
 
-1. Edit `infra/ingestor/app/.env.example`, render a real `.env`, and store it in SSM Parameter Store (default key `/mlops/collector/env`) so EC2 instances can download it at boot.
+1. Edit `infra/ingestor/app/.env.example`, render a real `.env`, and store it in SSM Parameter Store (default key `/mlops/collector/env`) so EC2 instances can download it at boot. If you update the parameter later, re-run `aws ssm get-parameter ... > /opt/collector/.env` (or redeploy) so each instance picks up the new values.
 2. Deploy the Terraform module (or reproduce equivalent IaC) to provision networking, IAM, S3, Lambda, and CodeDeploy.
 3. Configure GitHub repository secrets (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `CODEDEPLOY_APP_NAME`, `CODEDEPLOY_BUCKET`, `CODEDEPLOY_DEPLOYMENT_GROUP`, `NEWS_LAMBDA_NAME`) so `.github/workflows/deploy.yml` can push bundles and trigger CodeDeploy/Lambda updates on every `main` push.
 4. After the stack is up, push to `main` and let GitHub Actions trigger CodeDeploy; Airflow/ETL jobs can watch the S3 prefixes to continue processing.

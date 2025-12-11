@@ -18,6 +18,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Derive Lambda names from terraform.tfvars
+        run: |
+          project=$(python - <<'PY'
+from pathlib import Path
+import re
+text = Path("infra/ingestor/terraform/terraform.tfvars").read_text()
+match = re.search(r'^\\s*project\\s*=\\s*"([^"]+)"', text, flags=re.MULTILINE)
+print(match.group(1) if match else "mlops-ingestor-ybigta")
+PY
+)
+          echo "PROJECT=$project" >> $GITHUB_ENV
+          echo "NEWS_LAMBDA_NAME=${project}-news" >> $GITHUB_ENV
+          echo "NEWS_LAMBDA_NAME_CRYPTOPANIC=${project}-news-cryptopanic" >> $GITHUB_ENV
+          echo "NEWS_CONTENT_LAMBDA_NAME=${project}-news-content" >> $GITHUB_ENV
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -27,11 +42,31 @@ jobs:
 
       - name: Package news lambda
         run: |
-          rm -f infra/ingestor/news_ingestor.zip
-          zip -j infra/ingestor/news_ingestor.zip infra/ingestor/lambda/news_ingestor/main.py
+          rm -f infra/ingestor/lambda/news_ingestor.zip
+          zip -j infra/ingestor/lambda/news_ingestor.zip infra/ingestor/lambda/news_ingestor/main.py
 
-      - name: Update news lambda function
+      - name: Package news content lambda
+        run: |
+          rm -f infra/ingestor/lambda/news_content_fetcher.zip
+          zip -j infra/ingestor/lambda/news_content_fetcher.zip infra/ingestor/lambda/news_content_fetcher/main.py
+
+      - name: Update RSS news lambda function
+        if: ${{ env.NEWS_LAMBDA_NAME != '' }}
         run: |
           aws lambda update-function-code \
-            --function-name "${{ secrets.NEWS_LAMBDA_NAME }}" \
-            --zip-file fileb://infra/ingestor/news_ingestor.zip
+            --function-name "${{ env.NEWS_LAMBDA_NAME }}" \
+            --zip-file fileb://infra/ingestor/lambda/news_ingestor.zip
+
+      - name: Update CryptoPanic news lambda function
+        if: ${{ env.NEWS_LAMBDA_NAME_CRYPTOPANIC != '' }}
+        run: |
+          aws lambda update-function-code \
+            --function-name "${{ env.NEWS_LAMBDA_NAME_CRYPTOPANIC }}" \
+            --zip-file fileb://infra/ingestor/lambda/news_ingestor.zip
+
+      - name: Update news content lambda function
+        if: ${{ env.NEWS_CONTENT_LAMBDA_NAME != '' }}
+        run: |
+          aws lambda update-function-code \
+            --function-name "${{ env.NEWS_CONTENT_LAMBDA_NAME }}" \
+            --zip-file fileb://infra/ingestor/lambda/news_content_fetcher.zip
