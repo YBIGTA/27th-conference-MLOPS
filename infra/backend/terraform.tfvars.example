@@ -1,0 +1,19 @@
+aws_region            = "ap-northeast-2"
+project               = "mlops-gap-backend"
+
+# Use existing VPC + subnet (recommended to avoid VPC limits)
+existing_vpc_id       = "<vpc-xxxx>"
+existing_subnet_id    = "<subnet-xxxx>"  # public subnet
+
+ssh_key_name          = "your-keypair-name"
+ssh_ingress_cidrs     = ["203.0.113.10/32"]
+backend_http_cidrs    = ["0.0.0.0/0"]
+backend_port          = 8000
+instance_type_backend = "t3.medium"
+env_parameter_name    = "/mlops/backend/env"
+landing_bucket_name   = "ybigta-mlops-landing-zone-324037321745"
+sagemaker_training_role_arn = "<arn:aws:iam::ACCOUNT:role/SageMakerTrainingRole>"
+
+# Optional: artifact bucket/key if you want user-data to pull extra files
+# backend_artifact_bucket = "your-artifact-bucket"
+# backend_artifact_key    = "path/to/backend.zip"

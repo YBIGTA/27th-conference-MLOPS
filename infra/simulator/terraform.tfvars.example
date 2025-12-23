@@ -1,0 +1,8 @@
+region = "ap-northeast-2"
+vpc_id = "vpc-xxxxxxxx"
+subnet_id = "subnet-xxxxxxxx"
+key_name = "your-keypair-name"
+allowed_ssh_cidrs = ["0.0.0.0/0"]
+
+# Optional IAM instance profile name (set to null if not used)
+instance_profile = null
