@@ -138,5 +138,5 @@ npm run dev   # 또는 npm run build && npm run preview
 - 팀원(김예찬): Kafka를 이용한 뉴스 API 서빙 (https://github.com/yechance7/kafka-consumer)
 - 팀원(양인혜): 데이터베이스 설계 및 데이터 프로세싱 파이프라인 구축
 - 팀원(조요셉): 전체 설계 및 PM
-- 팀원(이지용):
+- 팀원(이지용): 모델 시뮬레이션을 위한 데이터 프로세싱, AI 로직 구축
 
