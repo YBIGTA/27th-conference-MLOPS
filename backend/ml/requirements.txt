@@ -1,0 +1,14 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+boto3
+numpy>=1.24
+pandas>=2.0
+pyarrow
+requests
+scikit-learn>=1.3
+torch==2.2.2
+tqdm
+# sagemaker 3.x pulls mlflow/onnx/triton 거대한 의존성 → 2.218.0로 핀
+sagemaker==2.218.0
+fastapi
+uvicorn
+pydantic

@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  backend:
+    build: .
+    container_name: gap-backend
+    env_file:
+      - /opt/backend/.env
+    ports:
+      - "${BACKEND_PORT-8000}:8000"
+    restart: unless-stopped
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+  ml-runner:
+    build:
+      context: ./ml
+      dockerfile: Dockerfile
+    container_name: ml-runner
+    env_file:
+      - /opt/backend/.env
+    restart: unless-stopped
+    environment:
+      - ML_INTERVAL_SECONDS=${ML_INTERVAL_SECONDS-3600}
+
+  ml-infer:
+    build:
+      context: ./ml
+      dockerfile: Dockerfile
+    container_name: ml-infer
+    env_file:
+      - /opt/backend/.env
+    environment:
+      - INFER_INTERVAL_SECONDS=${INFER_INTERVAL_SECONDS-600}
+      - MODEL_JSON=${MODEL_JSON-s3://ybigta-mlops-landing-zone-324037321745/model/latest.json}
+    command: ["python", "/app/ml/inference_loop.py"]
+    restart: unless-stopped
+
+  ml-api:
+    build:
+      context: ./ml
+      dockerfile: Dockerfile
+    container_name: ml-api
+    env_file:
+      - /opt/backend/.env
+    environment:
+      - MODEL_JSON=${MODEL_JSON-s3://ybigta-mlops-landing-zone-324037321745/model/latest.json}
+    command: ["uvicorn", "inference_api:app", "--host", "0.0.0.0", "--port", "9000"]
+    ports:
+      - "9000:9000"
+    restart: unless-stopped
