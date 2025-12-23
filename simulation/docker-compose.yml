@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  simulator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    restart: always
+    command: >
+      bash -c "
+        while true; do
+          python simulation/prefill.py --min-price-rows 40 --json-path '' --csv-path '' &&
+          python simulation/strategy_prefill.py --min-price-rows 40 --csv-path '';
+          sleep 600;
+        done
+      "
