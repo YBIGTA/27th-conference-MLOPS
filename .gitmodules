@@ -1,0 +1,9 @@
+[submodule "kafka-pipeline/kafka-producer"]
+	path = kafka-pipeline/kafka-producer
+	url = https://github.com/yechance7/kafka-producer
+[submodule "kafka-pipeline/kafka-consumer"]
+	path = kafka-pipeline/kafka-consumer
+	url = https://github.com/yechance7/kafka-consumer
+[submodule "kafka-pipeline/infra-nat"]
+	path = kafka-pipeline/infra-nat
+	url = https://github.com/yechance7/public-nat
